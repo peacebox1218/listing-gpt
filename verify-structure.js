@@ -1,16 +1,24 @@
 const fs = require('fs');
 const path = require('path');
 
-console.log('Current directory structure:');
-function listDir(dir, level = 0) {
-  const files = fs.readdirSync(dir);
-  files.forEach(file => {
-    const filePath = path.join(dir, file);
-    const stats = fs.statSync(filePath);
-    console.log('  '.repeat(level) + file);
-    if (stats.isDirectory()) {
-      listDir(filePath, level + 1);
-    }
-  });
+const targetDir = process.cwd();
+console.log('Current directory:', targetDir);
+console.log('\nDirectory structure:');
+
+function listDir(dir, indent = '') {
+  try {
+    const files = fs.readdirSync(dir);
+    files.forEach(file => {
+      const fullPath = path.join(dir, file);
+      const stats = fs.statSync(fullPath);
+      console.log(`${indent}${stats.isDirectory() ? '📁' : '📄'} ${file}`);
+      if (stats.isDirectory()) {
+        listDir(fullPath, `${indent}  `);
+      }
+    });
+  } catch (error) {
+    console.error(`Error reading directory ${dir}:`, error);
+  }
 }
-listDir('.');
+
+listDir(targetDir);
