@@ -2,6 +2,12 @@
 
 import Head from 'next/head';
 import { useState } from 'react';
+import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card';
+import { Input } from '../components/ui/input';
+import { Button } from '../components/ui/button';
+import { Alert, AlertTitle, AlertDescription } from '../components/ui/alert';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '../components/ui/tabs';
+import { ArrowRight, Sparkles, Zap, Search, Image, Users } from 'lucide-react';
 
 export default function Home() {
   const [url, setUrl] = useState('');
