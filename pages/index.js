@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import Head from 'next/head';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -14,36 +15,25 @@ const ListingOptimizer = () => {
 
   const analyzeUrl = async () => {
     setLoading(true);
-    // API call simulation
-    setTimeout(() => {
-      setResults({
-        title: {
-          current: "現在の商品名",
-          suggestions: [
-            {
-              improved: "改善案：ブランド名 + 商品特徴 + サイズ",
-              seoScore: 85,
-              appealScore: 90
-            }
-          ],
-          feedback: "キーワード配置の最適化とブランド名の前置により検索性向上"
+    try {
+      const response = await fetch('/api/analyze', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
         },
-        description: {
-          current: "現在の商品説明",
-          suggestions: "箇条書きで商品特徴を明確に\n素材感の詳細追加\nサイズ感の具体的な記載",
-          seoTips: "長さは最適です。キーワード密度の改善が推奨されます。",
-          appealTips: "購入のメリットをより明確に。"
-        },
-        image: {
-          tips: "- 自然光での撮影を推奨\n- 45度アングルでの全体像\n- 商品のディテール部分のアップショット追加"
-        }
+        body: JSON.stringify({ url }),
       });
+      const data = await response.json();
+      setResults(data);
+    } catch (error) {
+      console.error('Error:', error);
+    } finally {
       setLoading(false);
-    }, 1500);
+    }
   };
 
   return (
-    <Card className="w-full max-w-4xl mx-auto">
+    <Card className="w-full max-w-4xl mx-auto bg-white shadow-lg">
       <CardHeader>
         <CardTitle>ListingGPT - 商品掲載最適化</CardTitle>
       </CardHeader>
@@ -59,6 +49,8 @@ const ListingOptimizer = () => {
             <Button 
               onClick={analyzeUrl}
               disabled={loading || !url}
+              variant="default"
+              className="bg-blue-600 hover:bg-blue-700 text-white px-6"
             >
               {loading ? '分析中...' : '分析開始'}
             </Button>
@@ -66,21 +58,21 @@ const ListingOptimizer = () => {
 
           {results && (
             <Tabs defaultValue="title" className="mt-6">
-              <TabsList>
-                <TabsTrigger value="title">商品名</TabsTrigger>
-                <TabsTrigger value="description">商品説明</TabsTrigger>
-                <TabsTrigger value="image">画像</TabsTrigger>
+              <TabsList className="bg-gray-100 w-full justify-start">
+                <TabsTrigger value="title" className="data-[state=active]:bg-white">商品名</TabsTrigger>
+                <TabsTrigger value="description" className="data-[state=active]:bg-white">商品説明</TabsTrigger>
+                <TabsTrigger value="image" className="data-[state=active]:bg-white">画像</TabsTrigger>
               </TabsList>
 
               <TabsContent value="title">
-                <Alert>
+                <Alert className="bg-white border-blue-100">
                   <AlertTitle>現在の商品名</AlertTitle>
                   <AlertDescription>{results.title.current}</AlertDescription>
                 </Alert>
                 <div className="mt-4">
                   <h3 className="font-medium mb-2">改善案</h3>
                   {results.title.suggestions.map((suggestion, i) => (
-                    <div key={i} className="p-4 border rounded-lg mb-2">
+                    <div key={i} className="p-4 border rounded-lg mb-2 bg-white">
                       <p>{suggestion.improved}</p>
                       <div className="flex gap-4 mt-2 text-sm text-gray-600">
                         <span>SEOスコア: {suggestion.seoScore}</span>
@@ -93,20 +85,24 @@ const ListingOptimizer = () => {
 
               <TabsContent value="description">
                 <div className="space-y-4">
-                  <Alert>
+                  <Alert className="bg-white border-blue-100">
                     <AlertTitle>SEO改善ポイント</AlertTitle>
                     <AlertDescription>{results.description.seoTips}</AlertDescription>
                   </Alert>
-                  <Alert>
+                  <Alert className="bg-white border-blue-100">
                     <AlertTitle>アピール度向上ポイント</AlertTitle>
                     <AlertDescription>{results.description.appealTips}</AlertDescription>
                   </Alert>
-                  <div className="whitespace-pre-line">{results.description.suggestions}</div>
+                  <div className="whitespace-pre-line p-4 bg-white rounded-lg border">
+                    {results.description.suggestions}
+                  </div>
                 </div>
               </TabsContent>
 
               <TabsContent value="image">
-                <div className="whitespace-pre-line">{results.image.tips}</div>
+                <div className="whitespace-pre-line p-4 bg-white rounded-lg border">
+                  {results.image.tips}
+                </div>
               </TabsContent>
             </Tabs>
           )}
@@ -165,6 +161,21 @@ const Layout = ({ children }) => (
 const HomePage = () => {
   return (
     <Layout>
+      <Head>
+        <title>ListingGPT - EC出品最適化AI</title>
+        <meta name="description" content="AIがEC出品を最適化。商品名、説明文、画像を分析し改善提案を提供" />
+        <style>{`
+          :root {
+            --background: 0 0% 100%;
+            --foreground: 222.2 84% 4.9%;
+            --card: 0 0% 100%;
+            --card-foreground: 222.2 84% 4.9%;
+            --primary: 221.2 83.2% 53.3%;
+            --primary-foreground: 210 40% 98%;
+          }
+        `}</style>
+      </Head>
+
       {/* Hero Section */}
       <div className="bg-blue-50 py-20">
         <div className="max-w-7xl mx-auto px-4 text-center">
@@ -176,7 +187,8 @@ const HomePage = () => {
           </p>
           <Button 
             size="lg"
-            className="bg-blue-600 hover:bg-blue-700"
+            variant="default"
+            className="bg-blue-600 hover:bg-blue-700 text-white px-8"
             onClick={() => document.getElementById('tool').scrollIntoView({ behavior: 'smooth' })}
           >
             無料で始める
@@ -190,21 +202,21 @@ const HomePage = () => {
         <div className="max-w-7xl mx-auto px-4">
           <h2 className="text-3xl font-bold text-center mb-12">主な機能</h2>
           <div className="grid md:grid-cols-3 gap-8">
-            <Card>
+            <Card className="bg-white">
               <CardContent className="pt-6">
                 <Search className="h-12 w-12 text-blue-600 mb-4" />
                 <h3 className="text-xl font-semibold mb-2">SEO最適化</h3>
                 <p className="text-gray-600">検索上位表示のための最適なキーワード配置を提案</p>
               </CardContent>
             </Card>
-            <Card>
+            <Card className="bg-white">
               <CardContent className="pt-6">
                 <Zap className="h-12 w-12 text-blue-600 mb-4" />
                 <h3 className="text-xl font-semibold mb-2">商品説明文生成</h3>
                 <p className="text-gray-600">購買意欲を高める魅力的な商品説明文を自動生成</p>
               </CardContent>
             </Card>
-            <Card>
+            <Card className="bg-white">
               <CardContent className="pt-6">
                 <Image className="h-12 w-12 text-blue-600 mb-4" />
                 <h3 className="text-xl font-semibold mb-2">画像分析</h3>
@@ -241,7 +253,7 @@ const HomePage = () => {
         <div className="max-w-7xl mx-auto px-4">
           <h2 className="text-3xl font-bold text-center mb-12">開発者について</h2>
           <div className="max-w-3xl mx-auto">
-            <Card>
+            <Card className="bg-white">
               <CardContent className="pt-6">
                 <div className="flex items-center space-x-4 mb-6">
                   <div className="h-16 w-16 bg-blue-100 rounded-full flex items-center justify-center">
